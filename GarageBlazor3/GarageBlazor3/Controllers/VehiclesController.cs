@@ -48,6 +48,27 @@ public class VehiclesController : ControllerBase
 
         return NoContent();
     }
+    
+    [HttpPut("{id:int}")]
+    public IActionResult UpdateVehicle(int id, [FromBody] CreateVehicleDto request)
+    {
+        var vehicle = Vehicles.FirstOrDefault(v => v.Id == id);
+
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
+
+        var index = Vehicles.IndexOf(vehicle);
+
+        Vehicles[index] = vehicle with
+        {
+            RegistrationNumber = request.RegistrationNumber,
+            Brand = request.Brand
+        };
+
+        return NoContent();
+    }
 }
 
 public record VehicleDto(int Id, string RegistrationNumber, string Brand);

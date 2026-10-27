@@ -3,6 +3,7 @@
 @using System.Net.Http.Json
 @inject HttpClient Http
 @using GarageBlazor3.Client.DTOs
+@inject IJSRuntime JS
 
 <h3>Parked Vehicles</h3>
 <h4>Add Vehicle</h4>
@@ -22,8 +23,10 @@
         <ValidationMessage For="@(() => newVehicle.Brand)" />
     </div>
 
-    <button type="submit">Add Vehicle</button>
-</EditForm>
+    <button type="submit">
+        @(editingVehicleId is null ? "Add Vehicle" : "Save Changes")
+    </button>
+    </EditForm>
 
 
 @if (vehicles is null)
@@ -36,6 +39,7 @@ else
     {
         <p>@vehicle.RegistrationNumber - @vehicle.Brand</p>
         <button @onclick="() => DeleteVehicle(vehicle.Id)">Delete</button>
+        <button @onclick="() => StartEditing(vehicle)">Edit</button>
 
     }
 }
@@ -54,12 +58,28 @@ else
 
     private async Task AddVehicle()
     {
-        var response = await Http.PostAsJsonAsync("api/vehicles", newVehicle);
+        HttpResponseMessage response;
+
+        if (editingVehicleId is not null)
+        {
+            response = await Http.PutAsJsonAsync(
+                $"api/vehicles/{editingVehicleId}",
+                newVehicle
+            );
+        }
+        else
+        {
+            response = await Http.PostAsJsonAsync(
+                "api/vehicles",
+                newVehicle
+            );
+        }
 
         if (response.IsSuccessStatusCode)
         {
             vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
             newVehicle = new CreateVehicleForm();
+            editingVehicleId = null;
         }
     }
     
@@ -76,11 +96,31 @@ else
     
     private async Task DeleteVehicle(int id)
     {
+        var confirmed = await JS.InvokeAsync<bool>(
+            "confirm",
+            "Are you sure you want to delete this vehicle?"
+        );
+
+        if (!confirmed)
+            return;
+
         var response = await Http.DeleteAsync($"api/vehicles/{id}");
 
         if (response.IsSuccessStatusCode)
         {
             vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
         }
+    }
+    
+    private int? editingVehicleId;
+
+    private void StartEditing(VehicleDto vehicle)
+    {
+        editingVehicleId = vehicle.Id;
+        newVehicle = new CreateVehicleForm
+        {
+            RegistrationNumber = vehicle.RegistrationNumber,
+            Brand = vehicle.Brand
+        };
     }
 }
