@@ -1,0 +1,33 @@
+@page "/vehicles"
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Parked Vehicles</h3>
+
+@if (vehicles is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @foreach (var vehicle in vehicles)
+    {
+        <p>@vehicle.RegistrationNumber - @vehicle.Brand</p>
+    }
+}
+
+@code {
+    private List<VehicleDto>? vehicles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+    }
+
+    public class VehicleDto
+    {
+        public int Id { get; set; }
+        public string RegistrationNumber { get; set; } = "";
+        public string Brand { get; set; } = "";
+    }
+}
