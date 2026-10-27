@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarageBlazor3", "GarageBlazor3\GarageBlazor3\GarageBlazor3.csproj", "{F25E7C86-4C75-42EB-8A82-FF8A3941A0D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarageBlazor3.Client", "GarageBlazor3\GarageBlazor3.Client\GarageBlazor3.Client.csproj", "{F96AFED6-E56E-44C0-AF29-26659CFEC6E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F25E7C86-4C75-42EB-8A82-FF8A3941A0D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F25E7C86-4C75-42EB-8A82-FF8A3941A0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F25E7C86-4C75-42EB-8A82-FF8A3941A0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F25E7C86-4C75-42EB-8A82-FF8A3941A0D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F96AFED6-E56E-44C0-AF29-26659CFEC6E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F96AFED6-E56E-44C0-AF29-26659CFEC6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F96AFED6-E56E-44C0-AF29-26659CFEC6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F96AFED6-E56E-44C0-AF29-26659CFEC6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
