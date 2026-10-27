@@ -35,6 +35,8 @@ else
     @foreach (var vehicle in vehicles)
     {
         <p>@vehicle.RegistrationNumber - @vehicle.Brand</p>
+        <button @onclick="() => DeleteVehicle(vehicle.Id)">Delete</button>
+
     }
 }
 
@@ -70,5 +72,15 @@ else
 
         [Required]
         public string Brand { get; set; } = "";
+    }
+    
+    private async Task DeleteVehicle(int id)
+    {
+        var response = await Http.DeleteAsync($"api/vehicles/{id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+        }
     }
 }

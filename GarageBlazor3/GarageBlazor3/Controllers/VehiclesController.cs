@@ -33,6 +33,21 @@ public class VehiclesController : ControllerBase
 
         return Ok(vehicle);
     }
+    
+    [HttpDelete("{id:int}")]
+    public IActionResult Delete(int id)
+    {
+        var vehicle = Vehicles.FirstOrDefault(v => v.Id == id);
+
+        if (vehicle is null)
+        {
+            return NotFound();
+        }
+
+        Vehicles.Remove(vehicle);
+
+        return NoContent();
+    }
 }
 
 public record VehicleDto(int Id, string RegistrationNumber, string Brand);
