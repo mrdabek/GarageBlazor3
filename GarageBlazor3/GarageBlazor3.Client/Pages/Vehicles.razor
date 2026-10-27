@@ -3,6 +3,12 @@
 @inject HttpClient Http
 
 <h3>Parked Vehicles</h3>
+<h4>Add Vehicle</h4>
+
+<input @bind="newRegistrationNumber" placeholder="Registration number" />
+<input @bind="newBrand" placeholder="Brand" />
+
+<button @onclick="AddVehicle">Add Vehicle</button>
 
 @if (vehicles is null)
 {
@@ -29,5 +35,27 @@ else
         public int Id { get; set; }
         public string RegistrationNumber { get; set; } = "";
         public string Brand { get; set; } = "";
+    }
+    
+    private string newRegistrationNumber = "";
+    private string newBrand = "";
+
+    private async Task AddVehicle()
+    {
+        var vehicle = new
+        {
+            RegistrationNumber = newRegistrationNumber,
+            Brand = newBrand
+        };
+
+        var response = await Http.PostAsJsonAsync("api/vehicles", vehicle);
+
+        if (response.IsSuccessStatusCode)
+        {
+            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+
+            newRegistrationNumber = "";
+            newBrand = "";
+        }
     }
 }

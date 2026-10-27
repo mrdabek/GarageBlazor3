@@ -1,16 +1,3 @@
-// using Microsoft.AspNetCore.Mvc;
-//
-// namespace GarageBlazor3.Controllers;
-//
-// public class VehiclesController : Controller
-// {
-//     // GET
-//     public IActionResult Index()
-//     {
-//         return View();
-//     }
-// }
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace GarageBlazor3.Controllers;
@@ -19,15 +6,35 @@ namespace GarageBlazor3.Controllers;
 [Route("api/vehicles")]
 public class VehiclesController : ControllerBase
 {
+    private static readonly List<VehicleDto> Vehicles =
+    [
+        new(1, "ABC123", "Volvo"),
+        new(2, "XYZ789", "BMW")
+    ];
+
     [HttpGet]
     public IActionResult GetVehicles()
     {
-        var vehicles = new[]
-        {
-            new { Id = 1, RegistrationNumber = "ABC123", Brand = "Volvo" },
-            new { Id = 2, RegistrationNumber = "XYZ789", Brand = "BMW" }
-        };
+        return Ok(Vehicles);
+    }
 
-        return Ok(vehicles);
+    [HttpPost]
+    public IActionResult AddVehicle([FromBody] CreateVehicleDto request)
+    {
+        var id = Vehicles.Max(v => v.Id) + 1;
+
+        var vehicle = new VehicleDto(
+            id,
+            request.RegistrationNumber,
+            request.Brand
+        );
+
+        Vehicles.Add(vehicle);
+
+        return Ok(vehicle);
     }
 }
+
+public record VehicleDto(int Id, string RegistrationNumber, string Brand);
+
+public record CreateVehicleDto(string RegistrationNumber, string Brand);
