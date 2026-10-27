@@ -1,6 +1,7 @@
 @page "/vehicles"
 @using System.Net.Http.Json
 @inject HttpClient Http
+@using GarageBlazor3.Client.DTOs
 
 <h3>Parked Vehicles</h3>
 <h4>Add Vehicle</h4>
@@ -29,13 +30,7 @@ else
     {
         vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
     }
-
-    public class VehicleDto
-    {
-        public int Id { get; set; }
-        public string RegistrationNumber { get; set; } = "";
-        public string Brand { get; set; } = "";
-    }
+    
     
     private string newRegistrationNumber = "";
     private string newBrand = "";
