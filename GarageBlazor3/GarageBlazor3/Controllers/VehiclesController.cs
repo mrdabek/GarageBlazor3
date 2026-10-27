@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-
+using GarageBlazor3.DTOs;
 namespace GarageBlazor3.Controllers;
 
 [ApiController]
@@ -37,4 +37,3 @@ public class VehiclesController : ControllerBase
 
 public record VehicleDto(int Id, string RegistrationNumber, string Brand);
 
-public record CreateVehicleDto(string RegistrationNumber, string Brand);
