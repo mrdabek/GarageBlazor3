@@ -1,9 +1,4 @@
-@using System.ComponentModel.DataAnnotations
 @page "/vehicles"
-@using System.Net.Http.Json
-@inject HttpClient Http
-@using GarageBlazor3.Client.DTOs
-@inject IJSRuntime JS
 
 <h3>Parked Vehicles</h3>
 <h4>Add Vehicle</h4>
@@ -26,8 +21,7 @@
     <button type="submit">
         @(editingVehicleId is null ? "Add Vehicle" : "Save Changes")
     </button>
-    </EditForm>
-
+</EditForm>
 
 @if (vehicles is null)
 {
@@ -40,87 +34,5 @@ else
         <p>@vehicle.RegistrationNumber - @vehicle.Brand</p>
         <button @onclick="() => DeleteVehicle(vehicle.Id)">Delete</button>
         <button @onclick="() => StartEditing(vehicle)">Edit</button>
-
-    }
-}
-
-@code {
-    private List<VehicleDto>? vehicles;
-
-    protected override async Task OnInitializedAsync()
-    {
-        vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
-    }
-    
-    
-    private string newRegistrationNumber = "";
-    private string newBrand = "";
-
-    private async Task AddVehicle()
-    {
-        HttpResponseMessage response;
-
-        if (editingVehicleId is not null)
-        {
-            response = await Http.PutAsJsonAsync(
-                $"api/vehicles/{editingVehicleId}",
-                newVehicle
-            );
-        }
-        else
-        {
-            response = await Http.PostAsJsonAsync(
-                "api/vehicles",
-                newVehicle
-            );
-        }
-
-        if (response.IsSuccessStatusCode)
-        {
-            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
-            newVehicle = new CreateVehicleForm();
-            editingVehicleId = null;
-        }
-    }
-    
-    private CreateVehicleForm newVehicle = new();
-
-    public class CreateVehicleForm
-    {
-        [Required]
-        public string RegistrationNumber { get; set; } = "";
-
-        [Required]
-        public string Brand { get; set; } = "";
-    }
-    
-    private async Task DeleteVehicle(int id)
-    {
-        var confirmed = await JS.InvokeAsync<bool>(
-            "confirm",
-            "Are you sure you want to delete this vehicle?"
-        );
-
-        if (!confirmed)
-            return;
-
-        var response = await Http.DeleteAsync($"api/vehicles/{id}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
-        }
-    }
-    
-    private int? editingVehicleId;
-
-    private void StartEditing(VehicleDto vehicle)
-    {
-        editingVehicleId = vehicle.Id;
-        newVehicle = new CreateVehicleForm
-        {
-            RegistrationNumber = vehicle.RegistrationNumber,
-            Brand = vehicle.Brand
-        };
     }
 }
