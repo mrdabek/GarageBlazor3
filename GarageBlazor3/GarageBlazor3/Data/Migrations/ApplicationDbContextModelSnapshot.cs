@@ -193,6 +193,28 @@ namespace GarageBlazor3.Migrations
                         .IsUnique();
 
                     b.ToTable("VehicleTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Car"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Motorcycle"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Bus"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Truck"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

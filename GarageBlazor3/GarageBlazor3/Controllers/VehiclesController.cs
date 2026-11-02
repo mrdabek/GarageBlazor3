@@ -1,71 +1,130 @@
 using Microsoft.AspNetCore.Mvc;
 using GarageBlazor3.DTOs;
+using GarageBlazor3.Data;
+using GarageBlazor3.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
 namespace GarageBlazor3.Controllers;
 
 [ApiController]
 [Route("api/vehicles")]
 public class VehiclesController : ControllerBase
 {
-    private static readonly List<VehicleDto> Vehicles =
-    [
-        new(1, "ABC123", "Volvo"),
-        new(2, "XYZ789", "BMW")
-    ];
+    private readonly ApplicationDbContext _context;
+
+    public VehiclesController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager)
+    {
+        _context = context;
+        _userManager = userManager;
+    }
+    
+    private readonly UserManager<ApplicationUser> _userManager;
 
     [HttpGet]
-    public IActionResult GetVehicles()
+    public async Task<IActionResult> GetVehicles()
     {
-        return Ok(Vehicles);
+        var vehicles = await _context.Vehicles
+            .Select(v => new VehicleDto(
+                v.Id,
+                v.RegistrationNumber,
+                v.Brand))
+            .ToListAsync();
+
+        return Ok(vehicles);
+    }
+    
+    [HttpGet("types")]
+    public async Task<IActionResult> GetVehicleTypes()
+    {
+        var types = await _context.VehicleTypes
+            .OrderBy(t => t.Name)
+            .Select(t => new { t.Id, t.Name })
+            .ToListAsync();
+
+        return Ok(types);
     }
 
     [HttpPost]
-    public IActionResult AddVehicle([FromBody] CreateVehicleDto request)
+    public async Task<IActionResult> AddVehicle(
+        [FromBody] CreateVehicleDto request)
     {
-        var id = Vehicles.Max(v => v.Id) + 1;
+        var user = await _userManager.GetUserAsync(User);
 
-        var vehicle = new VehicleDto(
-            id,
-            request.RegistrationNumber,
-            request.Brand
-        );
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        
+        var vehicleTypeExists = await _context.VehicleTypes
+            .AnyAsync(t => t.Id == request.VehicleTypeId);
 
-        Vehicles.Add(vehicle);
+        if (!vehicleTypeExists)
+        {
+            return BadRequest("Invalid vehicle type.");
+        }
+        
+        var vehicle = new Vehicle
+        {
+            RegistrationNumber = request.RegistrationNumber,
+            Brand = request.Brand,
+            VehicleTypeId = request.VehicleTypeId,
+            OwnerId = user.Id
+            
+        };
 
-        return Ok(vehicle);
+        _context.Vehicles.Add(vehicle);
+        await _context.SaveChangesAsync();
+
+        return Ok(new VehicleDto(
+            vehicle.Id,
+            vehicle.RegistrationNumber,
+            vehicle.Brand
+        ));
     }
     
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var vehicle = Vehicles.FirstOrDefault(v => v.Id == id);
+        var vehicle = await _context.Vehicles.FindAsync(id);
 
         if (vehicle is null)
         {
             return NotFound();
         }
 
-        Vehicles.Remove(vehicle);
+        _context.Vehicles.Remove(vehicle);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
     
     [HttpPut("{id:int}")]
-    public IActionResult UpdateVehicle(int id, [FromBody] CreateVehicleDto request)
+    public async Task<IActionResult> UpdateVehicle(
+        int id, [FromBody] CreateVehicleDto request)
     {
-        var vehicle = Vehicles.FirstOrDefault(v => v.Id == id);
+        var vehicle = await _context.Vehicles.FindAsync(id);
 
         if (vehicle is null)
         {
             return NotFound();
         }
 
-        var index = Vehicles.IndexOf(vehicle);
+        var vehicleTypeExists = await _context.VehicleTypes
+            .AnyAsync(t => t.Id == request.VehicleTypeId);
 
-        Vehicles[index] = vehicle with
+        if (!vehicleTypeExists)
         {
-            RegistrationNumber = request.RegistrationNumber,
-            Brand = request.Brand
-        };
+            return BadRequest("Invalid vehicle type.");
+        }
+
+        vehicle.RegistrationNumber = request.RegistrationNumber;
+        vehicle.Brand = request.Brand;
+        vehicle.VehicleTypeId = request.VehicleTypeId;
+
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
