@@ -1,15 +1,15 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Json;
 using GarageBlazor3.Client.DTOs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using GarageBlazor3.Client.Services;
 
 namespace GarageBlazor3.Client.Pages;
 
 public partial class Vehicles
 {
     [Inject]
-    private HttpClient Http { get; set; } = default!;
+    private VehicleService VehicleService { get; set; } = default!;
 
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
@@ -20,7 +20,7 @@ public partial class Vehicles
 
     protected override async Task OnInitializedAsync()
     {
-        vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+        vehicles = await VehicleService.GetVehiclesAsync();
     }
 
     private async Task AddVehicle()
@@ -29,22 +29,23 @@ public partial class Vehicles
 
         if (editingVehicleId is not null)
         {
-            response = await Http.PutAsJsonAsync(
-                $"api/vehicles/{editingVehicleId}",
-                newVehicle
+            response = await VehicleService.UpdateVehicleAsync(
+                editingVehicleId.Value,
+                newVehicle.RegistrationNumber,
+                newVehicle.Brand
             );
         }
         else
         {
-            response = await Http.PostAsJsonAsync(
-                "api/vehicles",
-                newVehicle
+            response = await VehicleService.AddVehicleAsync(
+                newVehicle.RegistrationNumber,
+                newVehicle.Brand
             );
         }
 
         if (response.IsSuccessStatusCode)
         {
-            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+            vehicles = await VehicleService.GetVehiclesAsync();
             newVehicle = new CreateVehicleForm();
             editingVehicleId = null;
         }
@@ -60,11 +61,11 @@ public partial class Vehicles
         if (!confirmed)
             return;
 
-        var response = await Http.DeleteAsync($"api/vehicles/{id}");
+        var response = await VehicleService.DeleteVehicleAsync(id);
 
         if (response.IsSuccessStatusCode)
         {
-            vehicles = await Http.GetFromJsonAsync<List<VehicleDto>>("api/vehicles");
+            vehicles = await VehicleService.GetVehiclesAsync();
         }
     }
 

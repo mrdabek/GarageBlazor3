@@ -4,6 +4,7 @@ using GarageBlazor3.Client.Pages;
 using GarageBlazor3.Components;
 using GarageBlazor3.Components.Account;
 using GarageBlazor3.Data;
+using GarageBlazor3.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<VehicleService>();
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:7214/")
