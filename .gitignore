@@ -492,3 +492,5 @@ secrets.json
 
 # macOS
 .DS_Store
+
+**/Data/app.db*
