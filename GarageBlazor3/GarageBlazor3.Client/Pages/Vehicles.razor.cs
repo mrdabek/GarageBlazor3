@@ -15,12 +15,14 @@ public partial class Vehicles
     private IJSRuntime JS { get; set; } = default!;
 
     private List<VehicleDto>? vehicles;
+    private List<VehicleTypeDto> vehicleTypes = [];
     private CreateVehicleForm newVehicle = new();
     private int? editingVehicleId;
 
     protected override async Task OnInitializedAsync()
     {
         vehicles = await VehicleService.GetVehiclesAsync();
+        vehicleTypes = await VehicleService.GetVehicleTypesAsync();
     }
 
     private async Task AddVehicle()
@@ -29,18 +31,20 @@ public partial class Vehicles
 
         if (editingVehicleId is not null)
         {
+            // Edycja istniejącego pojazdu
             response = await VehicleService.UpdateVehicleAsync(
                 editingVehicleId.Value,
                 newVehicle.RegistrationNumber,
-                newVehicle.Brand
-            );
+                newVehicle.Brand,
+                newVehicle.VehicleTypeId);
         }
         else
         {
+            // Dodawanie nowego pojazdu
             response = await VehicleService.AddVehicleAsync(
                 newVehicle.RegistrationNumber,
-                newVehicle.Brand
-            );
+                newVehicle.Brand,
+                newVehicle.VehicleTypeId);
         }
 
         if (response.IsSuccessStatusCode)
@@ -87,5 +91,8 @@ public partial class Vehicles
 
         [Required]
         public string Brand { get; set; } = "";
+        
+        [Range(1, int.MaxValue, ErrorMessage = "Select a vehicle type")]
+        public int VehicleTypeId { get; set; }
     }
 }

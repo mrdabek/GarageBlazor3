@@ -18,27 +18,35 @@ public class VehicleService
     }
 
     public async Task<HttpResponseMessage> AddVehicleAsync(
-        string registrationNumber, string brand)
+        string registrationNumber, string brand, int vehicleTypeId)
     {
         return await _http.PostAsJsonAsync("api/vehicles", new
         {
             RegistrationNumber = registrationNumber,
-            Brand = brand
+            Brand = brand,
+            VehicleTypeId = vehicleTypeId
         });
     }
 
     public async Task<HttpResponseMessage> UpdateVehicleAsync(
-        int id, string registrationNumber, string brand)
+        int id, string registrationNumber, string brand, int vehicleTypeId)
     {
         return await _http.PutAsJsonAsync($"api/vehicles/{id}", new
         {
             RegistrationNumber = registrationNumber,
-            Brand = brand
+            Brand = brand,
+            VehicleTypeId = vehicleTypeId
         });
     }
 
     public async Task<HttpResponseMessage> DeleteVehicleAsync(int id)
     {
         return await _http.DeleteAsync($"api/vehicles/{id}");
+    }
+    
+    public async Task<List<VehicleTypeDto>> GetVehicleTypesAsync()
+    {
+        return await _http.GetFromJsonAsync<List<VehicleTypeDto>>(
+            "api/vehicles/types") ?? [];
     }
 }

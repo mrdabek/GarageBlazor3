@@ -17,6 +17,20 @@
         <InputText @bind-Value="newVehicle.Brand" />
         <ValidationMessage For="@(() => newVehicle.Brand)" />
     </div>
+    <div>
+        <label>Vehicle Type</label>
+
+        <InputSelect @bind-Value="newVehicle.VehicleTypeId">
+            <option value="0">Select vehicle type</option>
+
+            @foreach (var type in vehicleTypes)
+            {
+                <option value="@type.Id">@type.Name</option>
+            }
+        </InputSelect>
+
+        <ValidationMessage For="@(() => newVehicle.VehicleTypeId)" />
+    </div>
 
     <button type="submit">
         @(editingVehicleId is null ? "Add Vehicle" : "Save Changes")
